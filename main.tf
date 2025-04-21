@@ -39,21 +39,21 @@ resource "aws_route_table_association" "subnet_3_association" {
 resource "aws_subnet" "subnet_1" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-east2-1a"
+  availability_zone       = "us-east-2-1a"
   map_public_ip_on_launch = true
 }
 
 resource "aws_subnet" "subnet_2" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.2.0/24"
-  availability_zone       = "us-east2-1b"
+  availability_zone       = "us-east-2-1b"
   map_public_ip_on_launch = true
 }
 
 resource "aws_subnet" "subnet_3" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.3.0/24"
-  availability_zone       = "us-east2-1c"
+  availability_zone       = "us-east-2-1c"
   map_public_ip_on_launch = true
 }
 
