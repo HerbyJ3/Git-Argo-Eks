@@ -80,7 +80,8 @@ module "eks" {
   eks_managed_node_groups = {
     green = {
       ami_type       = "AL2023_x86_64_STANDARD"
-      instance_types = ["m5.xlarge"]
+      instance_types = ["t3.small"]
+      capacity_type = "SPOT"
 
       min_size     = 1
       max_size     = 2
