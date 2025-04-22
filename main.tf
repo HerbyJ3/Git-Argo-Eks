@@ -77,6 +77,7 @@ module "eks" {
   subnet_ids               = [aws_subnet.subnet_1.id, aws_subnet.subnet_2.id, aws_subnet.subnet_3.id]
   control_plane_subnet_ids = [aws_subnet.subnet_1.id, aws_subnet.subnet_2.id, aws_subnet.subnet_3.id]
 
+  
   eks_managed_node_groups = {
     green = {
       ami_type       = "AL2023_x86_64_STANDARD"
