@@ -90,3 +90,20 @@ module "eks" {
     }
   }
 }
+resource "kubernetes_config_map" "aws_auth" {
+  metadata {
+    name      = "aws-auth"
+    namespace = "kube-system"
+  }
+
+  data = {
+    mapUsers = jsonencode([
+      {
+        userarn  = "arn:aws:iam::235182131989:user/herby33"
+        username = "herby33"
+        groups   = ["system:masters"]
+      }
+    ])
+  }
+}
+
