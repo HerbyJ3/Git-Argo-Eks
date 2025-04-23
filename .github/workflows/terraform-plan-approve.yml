@@ -1,4 +1,4 @@
-name: Terraform Apply with Approval
+name: Terraform CI/CD with Approval
 
 on:
   push:
@@ -6,10 +6,9 @@ on:
       - main
   
 jobs:
-  terraform:
-    name: Terraform Apply
+  terraform-plan:
+    name: Terraform Plan
     runs-on: ubuntu-latest
-    environment: dev
 
     steps:
     - name: Checkout Code
@@ -32,7 +31,37 @@ jobs:
 
     - name: Terraform Plan
       run: terraform plan
+  
+  terraform-apply:
+    name: Terraform Apply
+    needs: terraform-plan
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+      
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.6
+        
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+      
+    - name: Terraform Init
+      run: terraform init
 
     - name: Terraform Apply
       if: github.repository == 'HerbyJ3/Git-Argo-Eks' && github.ref == 'refs/heads/main'
       run: terraform apply -auto-approve
+
+    
+      
+      
