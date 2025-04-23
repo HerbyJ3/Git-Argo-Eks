@@ -107,3 +107,8 @@ resource "kubernetes_config_map" "aws_auth" {
   }
 }
 
+data "aws_eks_cluster_auth" "cluster" {
+  name = module.eks.cluster_name
+}
+
+
