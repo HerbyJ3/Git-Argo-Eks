@@ -9,6 +9,8 @@ jobs:
   terraform-plan:
     name: Terraform Plan
     runs-on: ubuntu-latest
+    environment:
+      name: dev
 
     steps:
     - name: Checkout Code
@@ -30,6 +32,7 @@ jobs:
       run: terraform init
 
     - name: Terraform Plan
+      if: github.repository == 'HerbyJ3/Git-Argo-Eks' && github.ref == 'refs/heads/main'
       run: terraform plan
   
   terraform-apply:
