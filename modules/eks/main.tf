@@ -17,6 +17,7 @@ module "eks" {
   vpc_id                   = var.vpc_id
   subnet_ids               = var.subnet_ids
   control_plane_subnet_ids = var.subnet_ids
+  
 
   eks_managed_node_groups = {
     green = {
@@ -34,33 +35,27 @@ module "eks" {
 data "aws_eks_cluster_auth" "cluster" {
   name = module.eks.cluster_name
 }
+data "aws_caller_identity" "current" {}
 
-resource "aws_iam_role" "eks_admin_role" {
-  name = "${var.cluster_name}-admin-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Effect = "Allow",
-      Principal = {
-        AWS = "*"
-      },
-      Action = "sts:AssumeRole"
-    }]
-  })
+resource "aws_eks_access_entry" "eks_admin_access" {
+  cluster_name  = module.eks.cluster_name
+  principal_arn = data.aws_caller_identity.current.arn
+  type          = "STANDARD"
 }
 
-resource "aws_iam_role_policy_attachment" "eks_admin_policy_attach" {
-  role       = aws_iam_role.eks_admin_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSAdminPolicy"
+resource "aws_eks_access_policy_association" "eks_admin_policy_association" {
+  cluster_name  = module.eks.cluster_name
+  principal_arn = data.aws_caller_identity.current.arn
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
+  access_scope {
+    type = "cluster"
+  }
 }
-
-resource "aws_iam_role_policy_attachment" "eks_cluster_policy_attach" {
-  role       = aws_iam_role.eks_admin_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-}
-
-resource "aws_iam_role_policy_attachment" "eks_service_policy_attach" {
-  role       = aws_iam_role.eks_admin_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+resource "aws_eks_access_policy_association" "eks_admin_policy_association" {
+  cluster_name  = module.eks.cluster_name
+  principal_arn = data.aws_caller_identity.current.arn
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
+  access_scope {
+    type = "cluster"
+  }
 }
