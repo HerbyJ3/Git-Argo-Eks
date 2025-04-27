@@ -94,7 +94,7 @@ jobs:
     - name: Set environment variables
       run: |
         echo "CLUSTER_NAME=$(terraform output -raw cluster_name)" >> $GITHUB_ENV
-        echo "AWS_REGION=$(terraform output -raw aws_region)" >> $GITHUB_ENV
+        echo "REGION=$(terraform output -raw region)" >> $GITHUB_ENV
 
   bootstrap-argo:
     name: Bootstrap ArgoCD
@@ -120,7 +120,7 @@ jobs:
 
     - name: Configure kubeconfig for EKS
       run: |
-        aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
+        aws eks update-kubeconfig --name $CLUSTER_NAME --region $REGION
   
     - name: Create argocd namespace (if not exists)
       run: |

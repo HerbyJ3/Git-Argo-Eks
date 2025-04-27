@@ -6,3 +6,7 @@ output "vpc_id" {
 output "cluster_name" {
   value = module.eks.cluster_name
 }
+
+output "region" {
+  value = module.vpc.region
+}
