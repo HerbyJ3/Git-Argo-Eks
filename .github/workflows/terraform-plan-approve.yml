@@ -14,7 +14,7 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
@@ -45,7 +45,7 @@ jobs:
       
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
@@ -69,8 +69,8 @@ jobs:
     - name: Terraform Output
       id: tf-out
       run: |
-        echo "EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)" >> $GITHUB_ENV
-        echo "AWS_REGION=$(terraform output -raw aws_region)" >> $GITHUB_ENV)"
+        echo "CLUSTER_NAME=$(terraform output -raw cluster_name)" >> $GITHUB_ENV
+        echo "AWS_REGION=$(terraform output -raw aws_region)" >> $GITHUB_ENV
 
   bootstrap-argo:
     name: Bootstrap ArgoCD
@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Install kubectl
       run: |
@@ -96,8 +96,8 @@ jobs:
 
     - name: Configure kubeconfig for EKS
       env:
-        CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
-        AWS_REGION: ${{ secrets.AWS_REGION }}
+        CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
+        AWS_REGION: ${{ env.AWS_REGION }}
       run: |
         aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
   
@@ -136,7 +136,7 @@ jobs:
     - name: Output Argo CD Admin Password and ALB URL
       run: |
         echo "🔒 Retrieving Argo CD Admin Password..."
-        PASSWORD=$(kubectl -n argo get secret argocd-initial-admin-secret \
+        PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret \
         -o jsonpath="{.data.password}" | base64 -d)
 
         echo "✅ Initial Admin Argo Password: $PASSWORD"
