@@ -104,28 +104,27 @@ jobs:
         helm repo update
   
         cat <<EOF > values.yaml
-server:
-  service:
-    type: ApplicationLoadBalancer
-  
-  ingress:
-    enabled: true
-    ingressClassName: alb
-    annotations:
-      alb.ingress.kubernetes.io/target-type: ip
-      alb.ingress.kubernetes.io/scheme: internet-facing
+        server:
+          service:
+            type: ApplicationLoadBalancer
+    
+          ingress:
+            enabled: true
+            ingressClassName: alb
+            annotations:
+              alb.ingress.kubernetes.io/target-type: ip
+              alb.ingress.kubernetes.io/scheme: internet-facing
 
-  ingressGrpc:
-    enabled: true
-    isAWSALB: true
-    ingressClassName: alb
+          ingressGrpc:
+            enabled: true
+            isAWSALB: true
+            ingressClassName: alb 
+        EOF
 
-      EOF
-
-      helm upgrade --install argocd argo/argo-cd \
-        --namespace argocd \
-        --version 7.8.26 \
-        -f values.yaml
+          helm upgrade --install argocd argo/argo-cd \
+            --namespace argocd \
+            --version 7.8.26 \
+            -f values.yaml
           
     
         
