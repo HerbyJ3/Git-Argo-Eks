@@ -65,6 +65,12 @@ jobs:
     - name: Terraform Apply
       if: github.repository == 'HerbyJ3/Git-Argo-Eks' && github.ref == 'refs/heads/main'
       run: terraform apply -auto-approve
+    
+    - name: Terraform Output
+      id: tf-out
+      run: |
+        echo "EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)" >> $GITHUB_ENV
+        echo "AWS_REGION=$(terraform output -raw aws_region)" >> $GITHUB_ENV)"
 
   bootstrap-argo:
     name: Bootstrap ArgoCD
@@ -127,8 +133,19 @@ jobs:
             --version 7.8.26 \
             -f values.yaml
           
-    
+    - name: Output Argo CD Admin Password and ALB URL
+      run: |
+        echo "🔒 Retrieving Argo CD Admin Password..."
+        PASSWORD=$(kubectl -n argo get secret argocd-initial-admin-secret \
+        -o jsonpath="{.data.password}" | base64 -d)
+
+        echo "✅ Initial Admin Argo Password: $PASSWORD"
+        echo ""
+
+        echo "🌐 Retrieving Argo CD ALB Public URL..."
+        ALB_URL=$(kubectl get ingress -n argocd -o jsonpath="{.items[0].status.loadBalancer.ingress[0].hostname}")
         
+        echo "✅ Argo CD UI URL: https://$ALB_URL"
     
       
       
