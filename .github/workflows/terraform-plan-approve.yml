@@ -66,15 +66,38 @@ jobs:
       if: github.repository == 'HerbyJ3/Git-Argo-Eks' && github.ref == 'refs/heads/main'
       run: terraform apply -auto-approve
     
-    - name: Terraform Output
-      id: tf-out
+  terraform-outputs:
+    name: Capture Terraform Outputs
+    needs: terraform-apply
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.6
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Terraform Init
+      run: terraform init
+      
+    - name: Set environment variables
       run: |
         echo "CLUSTER_NAME=$(terraform output -raw cluster_name)" >> $GITHUB_ENV
         echo "AWS_REGION=$(terraform output -raw aws_region)" >> $GITHUB_ENV
 
   bootstrap-argo:
     name: Bootstrap ArgoCD
-    needs: terraform-apply
+    needs: terraform-outputs
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repo
@@ -95,9 +118,6 @@ jobs:
         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
     - name: Configure kubeconfig for EKS
-      env:
-        CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
-        AWS_REGION: ${{ env.AWS_REGION }}
       run: |
         aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
   
