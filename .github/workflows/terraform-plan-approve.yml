@@ -66,6 +66,69 @@ jobs:
       if: github.repository == 'HerbyJ3/Git-Argo-Eks' && github.ref == 'refs/heads/main'
       run: terraform apply -auto-approve
 
+  bootstrap-argo:
+    name: Bootstrap ArgoCD
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Install kubectl
+      run: |
+        curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+
+    - name: Install AWS CLI
+      run: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip && sudo ./aws/install
+
+    - name: Install Helm
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+        - name: Configure kubeconfig for EKS
+        env:
+          CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
+  
+    - name: Create argocd namespace (if not exists)
+      run: |
+        kubectl create namespace argocd || true
+  
+    - name: Install Argo CD with ALB Ingress via Helm
+      run: |
+        helm repo add argo https://argoproj.github.io/argo-helm
+        helm repo update
+  
+        cat <<EOF > values.yaml
+server:
+  service:
+    type: ApplicationLoadBalancer
+  
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    annotations:
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/scheme: internet-facing
+
+  ingressGrpc:
+    enabled: true
+    isAWSALB: true
+    ingressClassName: alb
+
+      EOF
+
+      helm upgrade --install argocd argo/argo-cd \
+        --namespace argocd \
+        --version 7.8.26 \
+        -f values.yaml
+          
+    
+        
     
       
       
