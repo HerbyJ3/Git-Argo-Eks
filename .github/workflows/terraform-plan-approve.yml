@@ -68,10 +68,11 @@ jobs:
 
   bootstrap-argo:
     name: Bootstrap ArgoCD
+    needs: terraform-apply
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v2
 
     - name: Install kubectl
       run: |
@@ -87,12 +88,12 @@ jobs:
       run: |
         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-        - name: Configure kubeconfig for EKS
-        env:
-          CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-        run: |
-          aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
+    - name: Configure kubeconfig for EKS
+      env:
+        CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+      run: |
+        aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
   
     - name: Create argocd namespace (if not exists)
       run: |
@@ -106,7 +107,7 @@ jobs:
         cat <<EOF > values.yaml
         server:
           service:
-            type: ApplicationLoadBalancer
+            type: ClusterIP
     
           ingress:
             enabled: true
