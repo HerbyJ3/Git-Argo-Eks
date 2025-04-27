@@ -8,5 +8,5 @@ output "cluster_name" {
 }
 
 output "region" {
-  value = module.vpc.region
+  value = var.region
 }

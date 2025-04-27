@@ -12,9 +12,3 @@ variable "subnet_ids" {
   description = "List of subnet IDs output from VPC module"
   type        = list(string)
 }
-
-variable "region" {
-  description = "AWS region"
-  type        = string
-}
-
