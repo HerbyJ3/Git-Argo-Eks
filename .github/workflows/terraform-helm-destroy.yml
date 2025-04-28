@@ -1,0 +1,53 @@
+name: Terraform Destroy Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to destroy'
+        required: false
+        default: 'dev'
+
+jobs:
+  helm_argo_uninstall:
+    name: Uninstall Helm Chart
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+    
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Uninstall Helm Chart
+      run: |
+        helm uninstall argocd -n argocd
+
+    - name: Wait for Argo ALB to be deleted
+      run: |
+        echo "⏳ Waiting for Argo ALB to be deleted..."
+        sleep 90        
+
+    - name: Delete ArgoCD Namespace
+      run: |
+        kubectl delete namespace argocd
+
+  terraform_destroy:
+    name: Destroy Terraform Resources
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Destroy
+      run: terraform destroy -auto-approve
