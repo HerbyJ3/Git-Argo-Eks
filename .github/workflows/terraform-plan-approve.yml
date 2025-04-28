@@ -106,9 +106,10 @@ jobs:
 
     - name: Install kubectl
       run: |
-        VERSION=$(curl -s https://dl.k8s.io/release/stable.txt)
-        curl -LO "https://dl.k8s.io/release/$VERSION/bin/linux/amd64/kubectl"
-        chmod +x kubectl 
+        VERSION=$(curl -s https://dl.k8s.io/release/stable.txt) && \
+        echo "Downloading kubectl verson: $VERSION" && \
+        curl -LO "https://dl.k8s.io/release/$VERSION/bin/linux/amd64/kubectl" && \
+        chmod +x kubectl && \
         sudo mv kubectl /usr/local/bin/
 
     - name: Install AWS CLI
