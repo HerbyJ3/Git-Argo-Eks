@@ -100,11 +100,15 @@ jobs:
     name: Bootstrap ArgoCD
     needs: terraform-outputs
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3
 
     - name: Configure kubeconfig for EKS
+      env:
+        CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
+        REGION: ${{ env.REGION }}
       run: |
         aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.REGION }}
   
