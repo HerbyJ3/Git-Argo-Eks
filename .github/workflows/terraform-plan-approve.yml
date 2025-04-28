@@ -106,7 +106,7 @@ jobs:
 
     - name: Configure kubeconfig for EKS
       run: |
-        aws eks update-kubeconfig --name $CLUSTER_NAME --region $REGION
+        aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.REGION }}
   
     - name: Create argocd namespace (if not exists)
       run: |
