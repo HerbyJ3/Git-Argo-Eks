@@ -110,7 +110,7 @@ jobs:
         CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
         REGION: ${{ env.REGION }}
       run: |
-        aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.REGION }}
+        aws eks update-kubeconfig --name $CLUSTER_NAME --region $REGION
   
     - name: Create argocd namespace (if not exists)
       run: |
