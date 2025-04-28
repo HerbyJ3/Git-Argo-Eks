@@ -112,25 +112,30 @@ jobs:
         cat <<EOF > values.yaml
         server:
           service:
-            type: ClusterIP
+            type: LoadBalancer
     
           ingress:
             enabled: true
-            ingressClassName: alb
             annotations:
               alb.ingress.kubernetes.io/target-type: ip
               alb.ingress.kubernetes.io/scheme: internet-facing
+            ingressClassName: "alb"
 
           ingressGrpc:
             enabled: true
             isAWSALB: true
-            ingressClassName: alb 
+            ingressClassName: "alb" 
         EOF
 
           helm upgrade --install argocd argo/argo-cd \
             --namespace argocd \
             --version 7.8.26 \
             -f values.yaml
+
+    - name: Wait for Argo Application Load Balancer
+      run: |
+        echo "⏳ Waiting for Argo CD Load Balancer to be provisioned..."
+        sleep 60
           
     - name: Output Argo CD Admin Password and ALB URL
       run: |
@@ -142,7 +147,7 @@ jobs:
         echo ""
 
         echo "🌐 Retrieving Argo CD ALB Public URL..."
-        ALB_URL=$(kubectl get ingress -n argocd -o jsonpath="{.items[0].status.loadBalancer.ingress[0].hostname}")
+        ALB_URL=$(kubectl get svc argocd-server -n argocd -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
         
         echo "✅ Argo CD UI URL: https://$ALB_URL"
     
