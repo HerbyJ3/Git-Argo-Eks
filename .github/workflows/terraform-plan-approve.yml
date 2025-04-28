@@ -106,7 +106,7 @@ jobs:
 
     - name: Install kubectl
       run: |
-        VERSION=$(curl -s https://dl.k8s.io/release/stable.txt) && \
+        VERSION=$(curl -sL https://dl.k8s.io/release/stable.txt) && \
         echo "Downloading kubectl verson: $VERSION" && \
         curl -LO "https://dl.k8s.io/release/$VERSION/bin/linux/amd64/kubectl" && \
         chmod +x kubectl && \
