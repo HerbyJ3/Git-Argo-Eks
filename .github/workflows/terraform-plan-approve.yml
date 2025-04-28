@@ -96,19 +96,7 @@ jobs:
         echo "CLUSTER_NAME=$(terraform output -raw cluster_name)" >> $GITHUB_ENV
         echo "REGION=$(terraform output -raw region)" >> $GITHUB_ENV
 
-  bootstrap-argo:
-    name: Bootstrap ArgoCD
-    needs: terraform-outputs
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
-
     - name: Configure kubeconfig for EKS
-      env:
-        CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
-        REGION: ${{ env.REGION }}
       run: |
         aws eks update-kubeconfig --name $CLUSTER_NAME --region $REGION
   
