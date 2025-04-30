@@ -6,6 +6,7 @@ module "vpc" {
   public_subnet_cidrs = var.public_subnet_cidrs
 }
 
+
 module "eks" {
   source = "./modules/eks"
   # Source path to the EKS module
